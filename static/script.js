@@ -1,4 +1,10 @@
 // =============================
+// 🌐 AUTO BACKEND URL (WORKS LOCAL + DEPLOYED)
+// =============================
+const API_URL = window.location.origin;
+
+
+// =============================
 // 🧠 AI PREDICTION FUNCTION
 // =============================
 async function predict() {
@@ -7,7 +13,7 @@ async function predict() {
 
     // ✅ Safety check
     if (!inputEl || !outputEl) {
-        console.error("Input or Output element not found");
+        console.error("Missing input/output element");
         return;
     }
 
@@ -19,14 +25,10 @@ async function predict() {
     }
 
     // ⏳ Loading UI
-    outputEl.innerHTML = `
-        <div class="loading">
-            ⏳ Analyzing your symptoms...
-        </div>
-    `;
+    outputEl.innerHTML = "⏳ Analyzing your symptoms...";
 
     try {
-        let res = await fetch("/predict", {   // ✅ FIXED FOR DEPLOYMENT
+        let res = await fetch(`${API_URL}/predict`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -47,7 +49,7 @@ async function predict() {
 
         // ✅ SUCCESS UI
         outputEl.innerHTML = `
-            <div class="card animate">
+            <div class="card">
                 <h2>🩺 ${data.disease}</h2>
                 <p><strong>Confidence:</strong> ${data.confidence}%</p>
                 <div class="report">
@@ -60,15 +62,13 @@ async function predict() {
         console.error("Fetch Error:", err);
 
         outputEl.innerHTML = `
-            <div class="error">
-                ⚠️ Unable to connect to server.<br><br>
-                ✔ Backend may be down<br>
-                ✔ Check Railway deployment logs
-            </div>
+            ⚠️ Unable to connect to server.<br><br>
+            ✔ Backend not running OR crashed<br>
+            ✔ Wrong API URL<br>
+            ✔ Railway deployment not ready
         `;
     }
 }
-
 
 
 // =============================
@@ -92,7 +92,6 @@ function startVoice() {
 }
 
 
-
 // =============================
 // 🌌 3D BACKGROUND (THREE.JS)
 // =============================
@@ -112,10 +111,8 @@ if (typeof THREE !== "undefined") {
         alpha: true
     });
 
-    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-
-    camera.position.setZ(5);
+    camera.position.z = 5;
 
     // 💡 Light
     const light = new THREE.PointLight(0xffffff, 1);
@@ -141,13 +138,13 @@ if (typeof THREE !== "undefined") {
         particles.push(particle);
     }
 
-    // 🔄 Animation loop
+    // 🔄 Animation
     function animate() {
         requestAnimationFrame(animate);
 
         particles.forEach((p, i) => {
-            p.rotation.x += 0.01;
-            p.rotation.y += 0.01;
+            p.rotation.x += 0.005;
+            p.rotation.y += 0.005;
             p.position.y += Math.sin(Date.now() * 0.001 + i) * 0.002;
         });
 
