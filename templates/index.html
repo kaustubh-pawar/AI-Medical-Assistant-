@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Medical Assistant</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+    <!-- Three.js (for 3D background) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+</head>
+
+<body>
+
+    <!-- 🌌 3D Background -->
+    <canvas id="bg"></canvas>
+
+    <!-- 🧠 Main Container -->
+    <div class="container">
+
+        <!-- Title -->
+        <h1 class="title">🩺 AI Medical Assistant</h1>
+        <p class="subtitle">Enter your symptoms and get instant AI diagnosis</p>
+
+        <!-- Input -->
+        <textarea 
+            id="input" 
+            placeholder="Example: fever, headache, cough..."
+        ></textarea>
+
+        <!-- Buttons -->
+        <div class="buttons">
+            <button onclick="startVoice()">🎤 Voice Input</button>
+            <button onclick="predict()">🔍 Analyze</button>
+        </div>
+
+        <!-- Output -->
+        <div id="output" class="output-box">
+            Your AI report will appear here...
+        </div>
+
+    </div>
+
+    <!-- JS -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

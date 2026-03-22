@@ -1,0 +1,11 @@
+fever,cough,headache,fatigue,prognosis
+1,1,0,1,flu
+1,0,1,1,viral_fever
+0,1,1,0,cold
+1,1,1,1,dengue
+0,0,1,1,migraine
+1,0,0,1,malaria
+0,1,0,0,allergy
+1,1,0,0,flu
+0,0,1,0,headache
+1,0,1,0,viral_fever
