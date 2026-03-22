@@ -5,9 +5,9 @@ async function predict() {
     const inputEl = document.getElementById("input");
     const outputEl = document.getElementById("output");
 
-    // ✅ Safety check (fix null error)
-    if (!inputEl) {
-        console.error("Input element not found");
+    // ✅ Safety check
+    if (!inputEl || !outputEl) {
+        console.error("Input or Output element not found");
         return;
     }
 
@@ -19,10 +19,14 @@ async function predict() {
     }
 
     // ⏳ Loading UI
-    outputEl.innerHTML = "⏳ Analyzing your symptoms...";
+    outputEl.innerHTML = `
+        <div class="loading">
+            ⏳ Analyzing your symptoms...
+        </div>
+    `;
 
     try {
-        let res = await fetch("http://localhost:5001/predict", {
+        let res = await fetch("/predict", {   // ✅ FIXED FOR DEPLOYMENT
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -30,22 +34,20 @@ async function predict() {
             body: JSON.stringify({ text: text })
         });
 
-        // ❌ If server not responding
         if (!res.ok) {
             throw new Error("Server response failed");
         }
 
         let data = await res.json();
 
-        // ❌ Backend error message
         if (data.error) {
             outputEl.innerHTML = `⚠️ ${data.error}`;
             return;
         }
 
-        // ✅ SUCCESS OUTPUT
+        // ✅ SUCCESS UI
         outputEl.innerHTML = `
-            <div class="card">
+            <div class="card animate">
                 <h2>🩺 ${data.disease}</h2>
                 <p><strong>Confidence:</strong> ${data.confidence}%</p>
                 <div class="report">
@@ -58,9 +60,11 @@ async function predict() {
         console.error("Fetch Error:", err);
 
         outputEl.innerHTML = `
-            ⚠️ Unable to connect to server.<br>
-            ✔ Check backend is running<br>
-            ✔ Check correct port (5001)
+            <div class="error">
+                ⚠️ Unable to connect to server.<br><br>
+                ✔ Backend may be down<br>
+                ✔ Check Railway deployment logs
+            </div>
         `;
     }
 }
@@ -68,7 +72,7 @@ async function predict() {
 
 
 // =============================
-// 🎤 VOICE INPUT (OPTIONAL)
+// 🎤 VOICE INPUT
 // =============================
 function startVoice() {
     if (!("webkitSpeechRecognition" in window)) {
@@ -77,7 +81,6 @@ function startVoice() {
     }
 
     let recognition = new webkitSpeechRecognition();
-
     recognition.lang = "en-US";
 
     recognition.onresult = function (event) {
@@ -89,8 +92,9 @@ function startVoice() {
 }
 
 
+
 // =============================
-// 🌌 OPTIONAL 3D BACKGROUND
+// 🌌 3D BACKGROUND (THREE.JS)
 // =============================
 if (typeof THREE !== "undefined") {
 
@@ -105,40 +109,46 @@ if (typeof THREE !== "undefined") {
 
     const renderer = new THREE.WebGLRenderer({
         canvas: document.querySelector("#bg"),
+        alpha: true
     });
 
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
-    camera.position.z = 5;
 
+    camera.position.setZ(5);
+
+    // 💡 Light
     const light = new THREE.PointLight(0xffffff, 1);
     light.position.set(5, 5, 5);
     scene.add(light);
 
+    // 🔵 Particles
     const geometry = new THREE.SphereGeometry(0.05, 16, 16);
     const material = new THREE.MeshStandardMaterial({ color: 0x00ffff });
 
     const particles = [];
 
-    for (let i = 0; i < 150; i++) {
+    for (let i = 0; i < 200; i++) {
         const particle = new THREE.Mesh(geometry, material);
 
         particle.position.set(
-            (Math.random() - 0.5) * 10,
-            (Math.random() - 0.5) * 10,
-            (Math.random() - 0.5) * 10
+            (Math.random() - 0.5) * 12,
+            (Math.random() - 0.5) * 12,
+            (Math.random() - 0.5) * 12
         );
 
         scene.add(particle);
         particles.push(particle);
     }
 
+    // 🔄 Animation loop
     function animate() {
         requestAnimationFrame(animate);
 
         particles.forEach((p, i) => {
             p.rotation.x += 0.01;
             p.rotation.y += 0.01;
-            p.position.y += Math.sin(Date.now() * 0.001 + i) * 0.001;
+            p.position.y += Math.sin(Date.now() * 0.001 + i) * 0.002;
         });
 
         renderer.render(scene, camera);
@@ -146,6 +156,7 @@ if (typeof THREE !== "undefined") {
 
     animate();
 
+    // 📱 Responsive
     window.addEventListener("resize", () => {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
